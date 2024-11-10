@@ -33,7 +33,6 @@ submit_query_headers = {
 }
 
 
-
 submit_query_body = {
     "endpointId": "predefined-openai-gpt4o",
     "query": "give me one creative and fun tip to help me eat healthier.",
@@ -51,12 +50,56 @@ print(healthyTip)
 
 
 
+url = "https://api.on-demand.io/media/v1/public/file"
+
+payload = {
+    "sessionId": f"{session_id}",
+    "externalUserId": f"{external_user_id}",
+    "url": "https://lh3.googleusercontent.com/pw/AP1GczNCd4z5a3rWt5EHnMrX50g5PDl9QwirCJIOlDvZOr4wCFT_I3sOR3PA8EJcD48Qdj4hRu5qslKRg7stcwgYvBCUOuRB1oz8qRwa84sDT3gKy9qv74l5xCnQnIekCj-_5HxH3q4gM098jXBmvU-SSeQEdg=w1441-h1081-s-no-gm?authuser=0",
+    "name": "meal",
+    "plugins": ["plugin-1713958591"],
+    "responseMode": "sync",
+    "pluginInputs": [{ "additionalProp": { "postProcess": { "chatPluginId": "plugin-1716472791" } } }]
+}
+headers = {
+    "accept": "application/json",
+    "content-type": "application/json",
+    "apikey": "mGJSgLnE5VMqazBP2jCoqSJwTESBO0fL"
+}
+
+response = requests.post(url, json=payload, headers=headers)
+
+# Now IMAGE IS IN CONTEXT
+
+# Step 2: Submit Query
+submit_query_url = f'https://api.on-demand.io/chat/v1/sessions/{session_id}/query'
+submit_query_headers = {
+    'apikey': api_key
+}
+
+
+submit_query_body = {
+    "endpointId": "predefined-openai-gpt4o",
+    "query": "Output ONLY a json file containing your best estimate of the nutrition content of this meal with 'calories', 'protein', 'carbs', and 'fat' as your keys and numerical values. No units. Thanks. No newlines and do NOT say 'json' at the beginning. It is critical that your output is proper JSON.",
+    "pluginIds": ["plugin-1712327325", "plugin-1713962163"],
+    "responseMode": "sync"
+}
+query_response = requests.post(submit_query_url, headers=submit_query_headers, json=submit_query_body)
+query_response_data = query_response.json()
+j = json.loads(query_response_data['data']['answer'])
+
+
+
+streak = 6
 app = Flask(__name__)
 
 @app.route('/info')
 def home():
-    streakInfo = {"current_streak": 6, "longest_streak": 10, "total_uploads": 23, "last_upload": "Yesterday", "healthy_tip": healthyTip}
-    return streakInfo
+    global streak
+    global healthyTip
+    streakInfo = {"current_streak": streak, "longest_streak": 10, "total_uploads": 23, "last_upload": "Yesterday", "healthy_tip": healthyTip}
+    streak = streak + 1
+    return streakInfo | j
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000)
