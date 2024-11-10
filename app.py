@@ -97,7 +97,7 @@ app = Flask(__name__)
 def home():
     global streak
     global healthyTip
-    streakInfo = {"current_streak": streak, "longest_streak": 10, "total_uploads": 23, "last_upload": "Yesterday", "healthy_tip": healthyTip}
+    streakInfo = {"current_streak": streak, "longest_streak": 56, "total_uploads": 105, "last_upload": "Today", "healthy_tip": healthyTip}
     streak = streak + 1
     return streakInfo | j
 
