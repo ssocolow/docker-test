@@ -26,28 +26,6 @@ response_data = response.json()
 # Extract the session ID from the response
 session_id = response_data['data']['id']
 
-# Step 2: Submit Query
-submit_query_url = f'https://api.on-demand.io/chat/v1/sessions/{session_id}/query'
-submit_query_headers = {
-    'apikey': api_key
-}
-
-
-submit_query_body = {
-    "endpointId": "predefined-openai-gpt4o",
-    "query": "give me one creative and fun tip to help me eat healthier.",
-    "pluginIds": ["plugin-1712327325", "plugin-1713962163"],
-    "responseMode": "sync"
-}
-
-# Make the request to submit a query
-query_response = requests.post(submit_query_url, headers=submit_query_headers, json=submit_query_body)
-query_response_data = query_response.json()
-healthyTip = query_response_data["data"]["answer"]
-print(healthyTip)
-# Print the response from the query submission
-# print(query_response_data)
-
 
 
 url = "https://api.on-demand.io/media/v1/public/file"
@@ -68,6 +46,8 @@ headers = {
 }
 
 response = requests.post(url, json=payload, headers=headers)
+r1 = response.text
+print(response.text)
 
 # Now IMAGE IS IN CONTEXT
 
@@ -86,7 +66,33 @@ submit_query_body = {
 }
 query_response = requests.post(submit_query_url, headers=submit_query_headers, json=submit_query_body)
 query_response_data = query_response.json()
+healthJSON = str(query_response_data)
+print(query_response_data)
 j = json.loads(query_response_data['data']['answer'])
+
+
+# based on this previous meal, what macronutrients should I try to eat for lunch
+# Step 2: Submit Query
+submit_query_url = f'https://api.on-demand.io/chat/v1/sessions/{session_id}/query'
+submit_query_headers = {
+    'apikey': api_key
+}
+
+context = r1 + "\n" + healthJSON
+submit_query_body = {
+    "endpointId": "predefined-openai-gpt4o",
+    "query": f"CONTEXT: {context} . PROMPT: Based on your best estimate of the nutrient information in the image, please advise me on how healthy my meal is. Be VERY concise and do not say anything like - it's challenging to provide specific advice -. If I'm eating well, congratulate me. If I'm not, suggest how I can eat healthier in the future.",
+    "pluginIds": ["plugin-1712327325", "plugin-1713962163"],
+    "responseMode": "sync"
+}
+
+# Make the request to submit a query
+query_response = requests.post(submit_query_url, headers=submit_query_headers, json=submit_query_body)
+query_response_data = query_response.json()
+healthyTip = query_response_data["data"]["answer"]
+print(healthyTip)
+# Print the response from the query submission
+# print(query_response_data)
 
 
 
