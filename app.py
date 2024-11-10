@@ -1,6 +1,7 @@
 # app.py
 from flask import Flask
 import requests
+import json
 
 
 
@@ -43,7 +44,8 @@ submit_query_body = {
 # Make the request to submit a query
 query_response = requests.post(submit_query_url, headers=submit_query_headers, json=submit_query_body)
 query_response_data = query_response.json()
-
+healthyTip = query_response_data["data"]["answer"]
+print(healthyTip)
 # Print the response from the query submission
 # print(query_response_data)
 
@@ -53,8 +55,7 @@ app = Flask(__name__)
 
 @app.route('/info')
 def home():
-
-    streakInfo = {f"current_streak": 6, "longest_streak": 10, "total_uploads": 23, "last_upload": "Yesterday", "healthy_tip": {query_response_data}}
+    streakInfo = {"current_streak": 6, "longest_streak": 10, "total_uploads": 23, "last_upload": "Yesterday", "healthy_tip": healthyTip}
     return streakInfo
 
 if __name__ == '__main__':
