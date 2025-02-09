@@ -1,5 +1,5 @@
 # Start with Node.js base image
-FROM node:20-lts
+FROM node:20
 
 # Set the working directory
 WORKDIR /app
