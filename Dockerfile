@@ -8,38 +8,37 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Step 3: Install Node.js and npm
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
-    && npm install -g npm@latest
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+# Download and install Node.js:
+RUN nvm install 22
+
+# RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+#     && apt-get install -y nodejs \
+#     && npm install -g npm@latest
 
 # Step 4: Set the working directory
 WORKDIR /app
 
-# Step 5: Clone your git repository
-# Replace the URL with your actual repository URL
-RUN git clone https://github.com/your-repo-url.git .
+# Step 5: Clone your git repository into a subdirectory
+RUN git clone https://github.com/ssocolow/flare_insure.git
 
-# Step 6: Copy the requirements file and install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Step 7: Install hardhat and project dependencies
+# Step 6: Install Node.js dependencies
+COPY package.json package-lock.json* ./
 RUN npm install --save-dev hardhat
-
-# Step 8: Install Express
 RUN npm install express
 
-# Step 9: Copy application files
+# Step 7: Copy application files
 COPY . .
 
-# Step 10: Run your setup script
-# Make sure the script is executable
-COPY setup.sh .
-RUN chmod +x setup.sh
+# Step 8: Setup script handling
+COPY setup.sh ./flare_insure/
+RUN chmod +x ./flare_insure/setup.sh
+WORKDIR /app/flare_insure  # Change to git repo directory
 RUN ./setup.sh
 
-# Step 9: Expose the port the app will run on
-EXPOSE 3000
+# Step 9: Return to app directory and expose port
+WORKDIR /app
+EXPOSE 3003
 
 # Step 10: Define the command to run the app
 CMD ["node", "app.js"]
