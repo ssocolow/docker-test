@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install --save-dev hardhat
 RUN npm install express
-
+RUN npm install --save-dev typescript
 # Clone and setup the repository
 RUN git clone https://github.com/ssocolow/flare_insure.git
 COPY setup.sh ./flare_insure/
