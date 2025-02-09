@@ -4,22 +4,23 @@ FROM node:latest
 # Set the working directory
 WORKDIR /app
 
-# Clone your git repository into a subdirectory
-RUN git clone https://github.com/ssocolow/flare_insure.git
-
-# Install Node.js dependencies
+# Install Node.js dependencies first
 COPY package.json package-lock.json* ./
 RUN npm install --save-dev hardhat
 RUN npm install express
 
-# Copy application files
-COPY . .
-
-# Setup script handling
+# Clone and setup the repository
+RUN git clone https://github.com/ssocolow/flare_insure.git
 COPY setup.sh ./flare_insure/
-RUN chmod +x ./flare_insure/setup.sh
-WORKDIR /app/flare_insure  # Change to git repo directory
+WORKDIR /app/flare_insure
+RUN chmod +x setup.sh
 RUN ./setup.sh
+
+# Return to app directory
+WORKDIR /app
+
+# Copy remaining application files
+COPY . .
 
 # Return to app directory and expose port
 WORKDIR /app
